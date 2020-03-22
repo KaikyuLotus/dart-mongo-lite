@@ -42,10 +42,10 @@ void main() {
     {'trigger': 'Salve', 'id': 0}
   ]);
 
-  var done = triggersCollection.findAndModify({'id': 0}, {'trigger': 'Salveeee trigger!'});
+  var done = triggersCollection.modify({'id': 0}, {'trigger': 'Salveeee trigger!'});
   print(done ? 'Trigger updated!' : 'Trigger not updated...');
 
-  done = dialogsCollection.findAndModify({'id': 1}, {'dialog': 'Salveeee dialog!'});
+  done = dialogsCollection.modify({'id': 1}, {'dialog': 'Salveeee dialog!'});
   print(done ? 'Dialog updated!' : 'Dialog not updated...');
 
   var dialog = dialogsCollection.findOneAs((d) => Dialog.fromJson(d), filter: {'dialog': 'Salveeee dialog!'});
