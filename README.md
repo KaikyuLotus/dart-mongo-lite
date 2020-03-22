@@ -8,15 +8,28 @@ Created from templates made available by Stagehand under a BSD-style
 A simple usage example:
 
 ```dart
-import 'package:dart_mongo_lite/dart_mongo_lite.dart';
+void main() {
+  var db = Database('resources/db');
 
-main() {
-  var awesome = new Awesome();
+  var dialogsCollection = db['dialogs'];
+  var triggersCollection = db['triggers'];
+
+  print('Dropped ${dialogsCollection.drop()} dialogs');
+  print('Dropped ${triggersCollection.drop()} triggers');
+
+  dialogsCollection.insertMany([
+    {'dialog': 'Ciao!'},
+    {'dialog': 'Salve!'}
+  ]);
+  triggersCollection.insertMany([
+    {'trigger': 'Ciao'},
+    {'trigger': 'Salve'}
+  ]);
+
+  var dialog = dialogsCollection.findOneAs((d) => Dialog.fromJson(d), filter: {'dialog': 'Ciao!'});
+  print(dialog.dialog);
+
+  var trigger = triggersCollection.findOneAs((t) => Trigger.fromJson(t), filter: {'trigger': 'Salve'});
+  print(trigger.trigger);
 }
 ```
-
-## Features and bugs
-
-Please file feature requests and bugs at the [issue tracker][tracker].
-
-[tracker]: http://example.com/issues/replaceme
