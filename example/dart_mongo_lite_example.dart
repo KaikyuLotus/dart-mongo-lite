@@ -34,17 +34,24 @@ void main() {
   print('Dropped ${triggersCollection.drop()} triggers');
 
   dialogsCollection.insertMany([
-    {'dialog': 'Ciao!'},
-    {'dialog': 'Salve!'}
+    {'dialog': 'Ciao!', 'id': 1},
+    {'dialog': 'Salve!', 'id': 0}
   ]);
   triggersCollection.insertMany([
-    {'trigger': 'Ciao'},
-    {'trigger': 'Salve'}
+    {'trigger': 'Ciao', 'id': 1},
+    {'trigger': 'Salve', 'id': 0}
   ]);
 
-  var dialog = dialogsCollection.findOneAs((d) => Dialog.fromJson(d), filter: {'dialog': 'Ciao!'});
-  print(dialog.dialog);
+  var done = triggersCollection.findAndModify({'id': 0}, {'trigger': 'Salveeee trigger!'});
+  print(done ? 'Trigger updated!' : 'Trigger not updated...');
 
-  var trigger = triggersCollection.findOneAs((t) => Trigger.fromJson(t), filter: {'trigger': 'Salve'});
-  print(trigger.trigger);
+  done = dialogsCollection.findAndModify({'id': 1}, {'dialog': 'Salveeee dialog!'});
+  print(done ? 'Dialog updated!' : 'Dialog not updated...');
+
+  var dialog = dialogsCollection.findOneAs((d) => Dialog.fromJson(d), filter: {'dialog': 'Salveeee dialog!'});
+  print(dialog?.dialog);
+
+  var trigger = triggersCollection.findOneAs((t) => Trigger.fromJson(t), filter: {'trigger': 'Salveeee trigger!'});
+  print(trigger?.trigger);
+
 }

@@ -1,6 +1,7 @@
 name: dart_mongo_lite
 description: Dart MongoLite a library to use mongo, without a server.
 version: 0.0.1
+homepage: https://github.com/KaikyuDev/dart_mongo_lite
 
 environment:
   sdk: '>=2.7.0 <3.0.0'

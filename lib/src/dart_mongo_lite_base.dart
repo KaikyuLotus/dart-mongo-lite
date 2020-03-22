@@ -58,8 +58,8 @@ class Collection {
     return true;
   }
 
-  int count() {
-    return _db._dbContent[_name].length;
+  int count({Map<String, dynamic> filter}) {
+    return _db._dbContent[_name].where((e) => _applyFilter(e, filter)).length;
   }
 
   int drop() {
@@ -74,7 +74,7 @@ class Collection {
   }
 
   Map<String, dynamic> findOne({Map<String, dynamic> filter}) {
-    return find().firstWhere((e) => _applyFilter(e, filter));
+    return find().firstWhere((e) => _applyFilter(e, filter), orElse: () => null);
   }
 
   List<T> findAs<T>(T Function(Map<String, dynamic> v) predicate, {Map<String, dynamic> filter}) {
@@ -82,7 +82,9 @@ class Collection {
   }
 
   T findOneAs<T>(T Function(Map<String, dynamic> v) predicate, {Map<String, dynamic> filter}) {
-    return predicate(findOne(filter: filter));
+    var found = findOne(filter: filter);
+    if (found == null) return null;
+    return predicate(found);
   }
 
   void insert(Map<String, dynamic> entry) {
@@ -93,5 +95,32 @@ class Collection {
   void insertMany(List<Map<String, dynamic>> entries) {
     _db._dbContent[_name].addAll(entries);
     _db._commit();
+  }
+
+  bool update(Map<String, dynamic> filter, Map<String, dynamic> update, bool upsert) {
+    for (var index = 0; index < _db._dbContent.length; index++) {
+      if (_applyFilter(_db._dbContent[_name][index], filter)) {
+        _db._dbContent[_name][index] = update;
+        return true;
+      }
+    }
+    if (upsert) {
+      _db[_name].insert(update);
+      return true;
+    }
+    return false;
+  }
+
+  // Fined every document that matches filter and updates all the fields based on update document
+  bool modify(Map<String, dynamic> filter, Map<String, dynamic> update) {
+    for (var index = 0; index < _db._dbContent.length; index++) {
+      if (_applyFilter(_db._dbContent[_name][index], filter)) {
+        for (var entry in update.entries) {
+          _db._dbContent[_name][index][entry.key] = entry.value;
+        }
+        return true;
+      }
+    }
+    return false;
   }
 }
