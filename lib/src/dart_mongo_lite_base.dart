@@ -1,10 +1,9 @@
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dart_mongo_lite/src/exceptions/corrupted_db_exception.dart';
 
 class Database {
-
   final String _dbPath;
 
   File _dbFile;
@@ -37,11 +36,9 @@ class Database {
     }
     return Collection(collection, this);
   }
-
 }
 
 class Collection {
-
   final String _name;
   final Database _db;
 
@@ -97,5 +94,4 @@ class Collection {
     _db._dbContent[_name].addAll(entries);
     _db._commit();
   }
-
 }

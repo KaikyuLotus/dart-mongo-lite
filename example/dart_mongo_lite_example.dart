@@ -47,5 +47,4 @@ void main() {
 
   var trigger = triggersCollection.findOneAs((t) => Trigger.fromJson(t), filter: {'trigger': 'Salve'});
   print(trigger.trigger);
-
 }
