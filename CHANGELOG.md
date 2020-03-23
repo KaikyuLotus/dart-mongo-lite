@@ -10,3 +10,7 @@
 
 - Added a synchronization mechanism to load file changes before updating the file;
 - Minor fixes
+
+## 0.0.3+1
+
+- Fixed a bug where update filter never matches

@@ -112,7 +112,7 @@ class Collection {
 
   bool update(Map<String, dynamic> filter, Map<String, dynamic> update, bool upsert) {
     _db._sync();
-    for (var index = 0; index < _db._dbContent.length; index++) {
+    for (var index = 0; index < _db._dbContent[_name].length; index++) {
       if (_applyFilter(_db._dbContent[_name][index], filter)) {
         _db._dbContent[_name][index] = update;
         _db._commit();
@@ -130,7 +130,7 @@ class Collection {
   // Fined every document that matches filter and updates all the fields based on update document
   bool modify(Map<String, dynamic> filter, Map<String, dynamic> update) {
     _db._sync();
-    for (var index = 0; index < _db._dbContent.length; index++) {
+    for (var index = 0; index < _db._dbContent[_name].length; index++) {
       if (_applyFilter(_db._dbContent[_name][index], filter)) {
         for (var entry in update.entries) {
           _db._dbContent[_name][index][entry.key] = entry.value;
