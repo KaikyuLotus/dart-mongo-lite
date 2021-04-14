@@ -1,25 +1,23 @@
 import 'package:dart_mongo_lite/dart_mongo_lite.dart';
 
 class Dialog {
-  String dialog;
-  String value;
+  String? dialog;
+  String? value;
 
   Dialog(this.dialog, this.value);
 
   factory Dialog.fromJson(Map<String, dynamic> json) {
-    if (json == null) return null;
     return Dialog(json['dialog'], json['value']);
   }
 }
 
 class Trigger {
-  String trigger;
-  String value;
+  String? trigger;
+  String? value;
 
   Trigger(this.trigger, this.value);
 
   factory Trigger.fromJson(Map<String, dynamic> json) {
-    if (json == null) return null;
     return Trigger(json['trigger'], json['value']);
   }
 }
@@ -34,24 +32,25 @@ void main() {
   print('Dropped ${triggersCollection.drop()} triggers');
 
   dialogsCollection.insertMany([
-    {'dialog': 'Ciao!', 'id': 1},
-    {'dialog': 'Salve!', 'id': 0}
+    {'dialog': 'Hello!', 'id': 1},
+    {'dialog': 'Hi!', 'id': 0}
   ]);
   triggersCollection.insertMany([
-    {'trigger': 'Ciao', 'id': 1},
-    {'trigger': 'Salve', 'id': 0}
+    {'trigger': 'Hello', 'id': 1},
+    {'trigger': 'Hi', 'id': 0}
   ]);
 
-  var done = triggersCollection.modify({'id': 0}, {'trigger': 'Salveeee trigger!'});
+  var done = triggersCollection.modify({'id': 0}, {'trigger': 'Hiii trigger!'});
   print(done ? 'Trigger updated!' : 'Trigger not updated...');
 
-  done = dialogsCollection.modify({'id': 1}, {'dialog': 'Salveeee dialog!'});
+  done = dialogsCollection.modify({'id': 1}, {'dialog': 'Hiii dialog!'});
   print(done ? 'Dialog updated!' : 'Dialog not updated...');
 
-  var dialog = dialogsCollection.findOneAs((d) => Dialog.fromJson(d), filter: {'dialog': 'Salveeee dialog!'});
+  var dialog = dialogsCollection
+      .findOneAs((d) => Dialog.fromJson(d), filter: {'dialog': 'Hiii dialog!'});
   print(dialog?.dialog);
 
-  var trigger = triggersCollection.findOneAs((t) => Trigger.fromJson(t), filter: {'trigger': 'Salveeee trigger!'});
+  var trigger = triggersCollection.findOneAs((t) => Trigger.fromJson(t),
+      filter: {'trigger': 'Hiii trigger!'});
   print(trigger?.trigger);
-
 }

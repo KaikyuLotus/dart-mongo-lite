@@ -1,16 +1,24 @@
-## 0.0.1
+## 0.1.0-beta.2
 
-- Initial version, created by Kaikyu Lotus
+- Add delete element from collection
 
-## 0.0.2
+## 0.1.0-beta.1
 
-- Implemented updated and modify
+- Null safety
+
+## 0.0.3+1
+
+- Fixed a bug where update filter never matches
 
 ## 0.0.3
 
 - Added a synchronization mechanism to load file changes before updating the file;
 - Minor fixes
 
-## 0.0.3+1
+## 0.0.2
 
-- Fixed a bug where update filter never matches
+- Implemented updated and modify
+
+## 0.0.1
+
+- Initial version, created by Kaikyu Lotus

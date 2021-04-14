@@ -2,4 +2,3 @@
 library dart_mongo_lite;
 
 export 'src/dart_mongo_lite_base.dart';
-

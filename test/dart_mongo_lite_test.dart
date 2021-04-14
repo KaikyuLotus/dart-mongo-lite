@@ -2,8 +2,7 @@ import 'package:dart_mongo_lite/dart_mongo_lite.dart';
 import 'package:test/test.dart';
 
 void main() {
-
-  Database db;
+  late Database db;
 
   group('Smoke Tests', () {
     setUp(() {
@@ -23,6 +22,5 @@ void main() {
       expect(entries.length, equals(1));
       expect(entries.first['test'], equals('value'));
     });
-
   });
 }
