@@ -10,4 +10,8 @@ build/
 # Directory created by dartdoc
 doc/api/
 
-resources
+resources/
+
+# Files and directories created by idea
+.idea/
+*.iml
