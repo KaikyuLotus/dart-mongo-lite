@@ -6,13 +6,18 @@ import 'package:dart_mongo_lite/src/exceptions/corrupted_db_exception.dart';
 typedef JsonObject = Map<String, dynamic>;
 
 class Database {
+  final JsonEncoder _encoder;
   final String _dbPath;
   final File _dbFile;
   late Map<String, List<JsonObject>> _dbContent;
 
   String get dbPath => _dbPath;
 
-  Database(this._dbPath) : _dbFile = File(_dbPath) {
+  Database(
+    this._dbPath, {
+    bool pretty = false,
+  })  : _encoder = JsonEncoder.withIndent(pretty ? '  ' : null),
+        _dbFile = File(_dbPath) {
     if (!_dbFile.existsSync()) {
       _dbFile.createSync(recursive: true);
       _dbFile.writeAsStringSync('{}');
@@ -36,7 +41,7 @@ class Database {
   }
 
   void _commit() {
-    var content = json.encode(_dbContent);
+    var content = _encoder.convert(_dbContent);
     _dbFile.writeAsStringSync(content);
   }
 
@@ -45,7 +50,6 @@ class Database {
       _dbContent[collection] = [];
       _commit(); // Save the new collection, even if empty
     }
-
     return _dbContent[collection]!;
   }
 

@@ -1,5 +1,5 @@
 class CorruptedDBException implements Exception {
-  String description;
+  final String description;
 
   CorruptedDBException(this.description);
 
