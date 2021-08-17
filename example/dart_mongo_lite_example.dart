@@ -46,11 +46,15 @@ void main() {
   done = dialogsCollection.modify({'id': 1}, {'dialog': 'Hiii dialog!'});
   print(done ? 'Dialog updated!' : 'Dialog not updated...');
 
-  var dialog = dialogsCollection
-      .findOneAs((d) => Dialog.fromJson(d), filter: {'dialog': 'Hiii dialog!'});
+  var dialog = dialogsCollection.findOneAs(
+    (d) => Dialog.fromJson(d),
+    filter: {'dialog': 'Hiii dialog!'},
+  );
   print(dialog?.dialog);
 
-  var trigger = triggersCollection.findOneAs((t) => Trigger.fromJson(t),
-      filter: {'trigger': 'Hiii trigger!'});
+  var trigger = triggersCollection.findOneAs(
+    (t) => Trigger.fromJson(t),
+    filter: {'trigger': 'Hiii trigger!'},
+  );
   print(trigger?.trigger);
 }
