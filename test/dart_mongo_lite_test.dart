@@ -22,5 +22,39 @@ void main() {
       expect(entries.length, equals(1));
       expect(entries.first['test'], equals('value'));
     });
+
+    test('Filtering nested objects', () {
+      var coll = db['${DateTime.now()}'];
+      coll.insertMany([
+        {
+          'test': 'nested',
+          'numbers': {
+            'series': 1,
+            'percentages': {
+              'perc': 10,
+            },
+          },
+        },
+        {
+          'test': 'nested',
+          'numbers': {
+            'series': 2,
+            'percentages': {
+              'perc': 20,
+            },
+          },
+        },
+      ]);
+      var entries = coll.find(filter: {
+        'test': 'nested',
+        'numbers': {
+          'percentages': {
+            'perc': 20,
+          },
+        },
+      });
+      expect(entries.length, equals(1));
+      expect(entries.first['numbers']['series'], equals(2));
+    });
   });
 }

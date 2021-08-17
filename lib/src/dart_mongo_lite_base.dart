@@ -68,10 +68,16 @@ class Collection {
 
   Collection(this._name, this._db);
 
-  /// Supports only not nested objects for now
   bool _applyFilter(JsonObject value, JsonObject filter) {
     for (var entry in filter.entries) {
       if (!value.containsKey(entry.key)) {
+        return false;
+      }
+      if (entry.value is JsonObject) {
+        var nestedResult = _applyFilter(value[entry.key], entry.value);
+        if (nestedResult) {
+          continue;
+        }
         return false;
       }
       if (value[entry.key] != entry.value) {
@@ -107,10 +113,7 @@ class Collection {
       if (filter == null) {
         return find().first;
       }
-
-      return find().firstWhere(
-        (e) => _applyFilter(e, filter),
-      );
+      return find().firstWhere((e) => _applyFilter(e, filter));
     } on StateError {
       return null;
     }
@@ -152,7 +155,7 @@ class Collection {
     return false;
   }
 
-  // Fined every document that matches filter and updates
+  // Find every document that matches filter and updates
   // all the fields based on update document
   bool modify(JsonObject filter, JsonObject update) {
     for (var index = 0; index < _db.dbContent(_name).length; index++) {
