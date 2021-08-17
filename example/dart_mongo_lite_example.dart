@@ -23,7 +23,7 @@ class Trigger {
 }
 
 void main() {
-  var db = Database('resources/db');
+  var db = Database('resources/db.json');
 
   var dialogsCollection = db['dialogs'];
   var triggersCollection = db['triggers'];
@@ -40,11 +40,8 @@ void main() {
     {'trigger': 'Hi', 'id': 0}
   ]);
 
-  var done = triggersCollection.modify({'id': 0}, {'trigger': 'Hiii trigger!'});
-  print(done ? 'Trigger updated!' : 'Trigger not updated...');
-
-  done = dialogsCollection.modify({'id': 1}, {'dialog': 'Hiii dialog!'});
-  print(done ? 'Dialog updated!' : 'Dialog not updated...');
+  triggersCollection.update({'id': 0}, {'trigger': 'Hiii trigger!'});
+  dialogsCollection.update({'id': 1}, {'dialog': 'Hiii dialog!'});
 
   var dialog = dialogsCollection.findOneAs(
     (d) => Dialog.fromJson(d),

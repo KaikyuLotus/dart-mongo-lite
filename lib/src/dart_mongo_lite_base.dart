@@ -7,11 +7,19 @@ typedef JsonObject = Map<String, dynamic>;
 
 typedef JsonArray = List<dynamic>;
 
+typedef FilterCallback = bool Function(JsonObject);
+
 class Database {
   final JsonEncoder _encoder;
   final String _dbPath;
   final File _dbFile;
   late Map<String, List<JsonObject>> _dbContent;
+
+  List<String> get collectionsNames => _dbContent.keys.toList();
+
+  List<Collection> get collections {
+    return collectionsNames.map((c) => Collection(c, this)).toList();
+  }
 
   String get dbPath => _dbPath;
 
@@ -36,6 +44,11 @@ class Database {
     } on FormatException {
       throw CorruptedDBException('The database file exists and is not valid');
     }
+  }
+
+  void clear() {
+    _dbContent = {};
+    _commit();
   }
 
   void sync() {
@@ -105,11 +118,25 @@ class Collection {
     return true;
   }
 
-  int count({JsonObject? filter}) {
-    if (filter == null) {
-      return _db.dbContent(_name).length;
+  Iterable<JsonObject> _applyFilters({
+    JsonObject? filter,
+    FilterCallback? callback,
+  }) {
+    if (filter == null && callback == null) {
+      return _db.dbContent(_name);
     }
-    return _db.dbContent(_name).where((e) => _applyFilter(e, filter)).length;
+    Iterable<JsonObject> content = _db.dbContent(_name);
+    if (filter != null) {
+      content = content.where((e) => _applyFilter(e, filter));
+    }
+    if (callback != null) {
+      content = content.where(callback);
+    }
+    return content;
+  }
+
+  int count({JsonObject? filter, FilterCallback? callback}) {
+    return _applyFilters(filter: filter, callback: callback).length;
   }
 
   int drop() {
@@ -119,30 +146,32 @@ class Collection {
     return size;
   }
 
-  List<JsonObject> find({JsonObject? filter}) {
-    if (filter == null) {
-      return _db.dbContent(_name);
-    }
-    return _db.dbContent(_name).where((e) => _applyFilter(e, filter)).toList();
+  List<JsonObject> find({JsonObject? filter, FilterCallback? callback}) {
+    return _applyFilters(filter: filter, callback: callback).toList();
   }
 
-  JsonObject? findOne({JsonObject? filter}) {
+  JsonObject? findOne({JsonObject? filter, FilterCallback? callback}) {
     try {
-      if (filter == null) {
-        return find().first;
-      }
-      return find().firstWhere((e) => _applyFilter(e, filter));
+      return _applyFilters(filter: filter, callback: callback).first;
     } on StateError {
       return null;
     }
   }
 
-  List<T> findAs<T>(T Function(JsonObject v) predicate, {JsonObject? filter}) {
-    return find(filter: filter).map(predicate).toList();
+  List<T> findAs<T>(
+    T Function(JsonObject v) predicate, {
+    JsonObject? filter,
+    FilterCallback? callback,
+  }) {
+    return find(filter: filter, callback: callback).map(predicate).toList();
   }
 
-  T? findOneAs<T>(T Function(JsonObject v) predicate, {JsonObject? filter}) {
-    var found = findOne(filter: filter);
+  T? findOneAs<T>(
+    T Function(JsonObject v) predicate, {
+    JsonObject? filter,
+    FilterCallback? callback,
+  }) {
+    var found = findOne(filter: filter, callback: callback);
     if (found == null) return null;
     return predicate(found);
   }
@@ -157,41 +186,45 @@ class Collection {
     _db._commit();
   }
 
-  bool update(JsonObject filter, JsonObject update, bool upsert) {
-    for (var index = 0; index < _db.dbContent(_name).length; index++) {
-      if (_applyFilter(_db.dbContent(_name)[index], filter)) {
-        _db.dbContent(_name)[index] = update;
-        _db._commit();
-        return true;
+  List<JsonObject> update(
+    JsonObject filter,
+    JsonObject update, {
+    FilterCallback? callback,
+    bool upsert = false,
+    bool multi = true,
+  }) {
+    var changes = <JsonObject>[];
+    for (var element in _applyFilters(filter: filter, callback: callback)) {
+      var index = _db.dbContent(_name).indexOf(element);
+      changes.add(element);
+      _db.dbContent(_name)[index] = update;
+      _db._commit();
+      if (!multi) {
+        return changes;
       }
     }
+
+    if (changes.isNotEmpty) return changes;
+
     if (upsert) {
       _db[_name].insert(update);
-      _db._commit();
-      return true;
+      return [];
     }
-    return false;
+
+    return [];
   }
 
-  // Find every document that matches filter and updates
-  // all the fields based on update document
-  bool modify(JsonObject filter, JsonObject update) {
-    for (var index = 0; index < _db.dbContent(_name).length; index++) {
-      if (_applyFilter(_db.dbContent(_name)[index], filter)) {
-        for (var entry in update.entries) {
-          _db.dbContent(_name)[index][entry.key] = entry.value;
-        }
-        _db._commit();
-        return true;
-      }
-    }
-    return false;
-  }
-
-  bool delete(JsonObject filter) {
+  bool delete({JsonObject? filter, FilterCallback? callback}) {
+    if (filter == null && callback == null) return false;
     var lenBefore = _db.dbContent(_name).length;
-    _db.dbContent(_name).removeWhere((e) => _applyFilter(e, filter));
-    _db._commit();
+
+    if (filter != null) {
+      _db.dbContent(_name).removeWhere((e) => _applyFilter(e, filter));
+    }
+    if (callback != null) {
+      _db.dbContent(_name).removeWhere(callback);
+    }
+
     return lenBefore > _db.dbContent(_name).length;
   }
 }

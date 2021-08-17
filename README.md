@@ -1,7 +1,8 @@
-A library for Dart developers.
+# Dart Mongo Lite
 
-Created from templates made available by Stagehand under a BSD-style
-[license](https://github.com/dart-lang/stagehand/blob/master/LICENSE).
+Dart Mongo Lite is a library which emulates MongoDB in a very simple way.\
+It doesn't require any server setup, data will be saved on a local file (specified in Database constructor).\
+It's not optimized for huge quantity of data.
 
 ## Usage
 
@@ -9,7 +10,7 @@ A simple usage example:
 
 ```dart
 void main() {
-  var db = Database('resources/db');
+  var db = Database('resources/db.json');
 
   var dialogsCollection = db['dialogs'];
   var triggersCollection = db['triggers'];
@@ -18,18 +19,26 @@ void main() {
   print('Dropped ${triggersCollection.drop()} triggers');
 
   dialogsCollection.insertMany([
-    {'dialog': 'Ciao!'},
-    {'dialog': 'Salve!'}
+    {'dialog': 'Hello!', 'id': 1},
+    {'dialog': 'Hi!', 'id': 0}
   ]);
   triggersCollection.insertMany([
-    {'trigger': 'Ciao'},
-    {'trigger': 'Salve'}
+    {'trigger': 'Hello', 'id': 1},
+    {'trigger': 'Hi', 'id': 0}
   ]);
 
-  var dialog = dialogsCollection.findOneAs((d) => Dialog.fromJson(d), filter: {'dialog': 'Ciao!'});
-  print(dialog.dialog);
+  triggersCollection.update({'id': 0}, {'trigger': 'Hiii trigger!'});
+  dialogsCollection.update({'id': 1}, {'dialog': 'Hiii dialog!'});
 
-  var trigger = triggersCollection.findOneAs((t) => Trigger.fromJson(t), filter: {'trigger': 'Salve'});
-  print(trigger.trigger);
+  var dialog = dialogsCollection.findOneAs(
+        (d) => Dialog.fromJson(d),
+    filter: {'dialog': 'Hiii dialog!'},
+  );
+  print(dialog?.dialog);
+
+  var trigger = triggersCollection.findOneAs(
+        (t) => Trigger.fromJson(t),
+    filter: {'trigger': 'Hiii trigger!'},
+  );
 }
 ```
