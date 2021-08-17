@@ -70,37 +70,37 @@ class Collection {
 
   Collection(this._name, this._db);
 
+  bool _compareArrays(JsonArray value, JsonArray filter) {
+    if (filter.length > value.length) return false;
+    if (filter is List<JsonObject>) {
+      for (var i = 0; i < filter.length; i++) {
+        var filterResult = _applyFilter(value[i], filter[i]);
+        if (filterResult) continue;
+        return false;
+      }
+      return true;
+    }
+
+    return filter.every((e) => value.contains(e));
+  }
+
   bool _applyFilter(JsonObject value, JsonObject filter) {
     for (var entry in filter.entries) {
       var filterKey = entry.key;
-      if (!value.containsKey(filterKey)) {
-        return false;
-      }
+      if (!value.containsKey(filterKey)) return false;
 
       var filterValue = entry.value;
       if (filterValue is JsonObject && value[filterKey] is JsonObject) {
         var nestedResult = _applyFilter(value[filterKey], filterValue);
-        if (nestedResult) {
-          continue;
-        }
+        if (nestedResult) continue;
         return false;
       }
       if (filterValue is JsonArray && value[filterKey] is JsonArray) {
-        var array = value[filterKey] as JsonArray;
-        if (filterValue.length > array.length) {
-          return false;
-        }
-
-        // Currently no support for arrays of objects
-        var arrayComparison = filterValue.every((e) => array.contains(e));
-        if (arrayComparison) {
-          continue;
-        }
+        var arrayComparison = _compareArrays(filterValue, value[filterKey]);
+        if (arrayComparison) continue;
         return false;
       }
-      if (value[filterKey] != filterValue) {
-        return false;
-      }
+      if (value[filterKey] != filterValue) return false;
     }
     return true;
   }

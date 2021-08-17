@@ -27,34 +27,54 @@ void main() {
       var coll = db['${DateTime.now()}'];
       coll.insertMany([
         {
-          'test': 'nested',
           'numbers': {
             'series': 1,
-            'percentages': {
-              'perc': 10,
-            },
+            'percentages': [
+              {
+                'values': [
+                  {'first': 10, 'second': 20}
+                ]
+              }
+            ]
           },
         },
         {
-          'test': 'nested',
           'numbers': {
             'series': 2,
-            'percentages': {
-              'perc': 20,
-            },
+            'percentages': [
+              {
+                'values': [
+                  {'first': 20, 'second': 30}
+                ]
+              }
+            ]
+          },
+        },
+        {
+          'numbers': {
+            'series': 3,
+            'percentages': [
+              {
+                'values': [
+                  {'first': 20, 'second': 30}
+                ]
+              }
+            ]
           },
         },
       ]);
       var entries = coll.find(filter: {
-        'test': 'nested',
         'numbers': {
-          'percentages': {
-            'perc': 20,
-          },
-        },
+          'percentages': [
+            {
+              'values': [
+                {'first': 20, 'second': 30}
+              ]
+            }
+          ]
+        }
       });
-      expect(entries.length, equals(1));
-      expect(entries.first['numbers']['series'], equals(2));
+      expect(entries.length, equals(2));
     });
   });
 }
