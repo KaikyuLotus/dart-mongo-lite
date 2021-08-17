@@ -5,6 +5,8 @@ import 'package:dart_mongo_lite/src/exceptions/corrupted_db_exception.dart';
 
 typedef JsonObject = Map<String, dynamic>;
 
+typedef JsonArray = List<dynamic>;
+
 class Database {
   final JsonEncoder _encoder;
   final String _dbPath;
@@ -70,17 +72,33 @@ class Collection {
 
   bool _applyFilter(JsonObject value, JsonObject filter) {
     for (var entry in filter.entries) {
-      if (!value.containsKey(entry.key)) {
+      var filterKey = entry.key;
+      if (!value.containsKey(filterKey)) {
         return false;
       }
-      if (entry.value is JsonObject) {
-        var nestedResult = _applyFilter(value[entry.key], entry.value);
+
+      var filterValue = entry.value;
+      if (filterValue is JsonObject && value[filterKey] is JsonObject) {
+        var nestedResult = _applyFilter(value[filterKey], filterValue);
         if (nestedResult) {
           continue;
         }
         return false;
       }
-      if (value[entry.key] != entry.value) {
+      if (filterValue is JsonArray && value[filterKey] is JsonArray) {
+        var array = value[filterKey] as JsonArray;
+        if (filterValue.length > array.length) {
+          return false;
+        }
+
+        // Currently no support for arrays of objects
+        var arrayComparison = filterValue.every((e) => array.contains(e));
+        if (arrayComparison) {
+          continue;
+        }
+        return false;
+      }
+      if (value[filterKey] != filterValue) {
         return false;
       }
     }
