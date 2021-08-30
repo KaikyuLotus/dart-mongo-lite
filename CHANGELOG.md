@@ -1,3 +1,7 @@
+## 0.2.0-beta.2
+
+- Add missing commit in delete
+
 ## 0.2.0-beta.1
 
 - Added callback filters to update, delete, find and count operations

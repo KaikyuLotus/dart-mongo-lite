@@ -225,6 +225,10 @@ class Collection {
       _db.dbContent(_name).removeWhere(callback);
     }
 
-    return lenBefore > _db.dbContent(_name).length;
+    bool anyDeleted = lenBefore > _db.dbContent(_name).length;
+    if (anyDeleted) {
+      _db._commit();
+    }
+    return anyDeleted;
   }
 }
